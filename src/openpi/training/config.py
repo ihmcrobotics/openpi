@@ -1,6 +1,7 @@
 """See _CONFIGS for the list of available configs."""
 
 import abc
+import os
 from collections.abc import Sequence
 import dataclasses
 import difflib
@@ -680,7 +681,7 @@ _CONFIGS = [
         name="pi05_ihmc",
         model=pi0_config.Pi0Config(pi05=True),
         data=LeRobotIHMCDataConfig(
-            repo_id="/opt/ihmc/LogData/H1/20250911_165145_H1TouchDoorHandle150/touch_handle_1/",
+            repo_id=os.path.join(os.path.expanduser("~"), "/datasets/touch_handle_1/".lstrip("/")),
             base_config=DataConfig(
                 # This flag determines whether we load the prompt (i.e. the task instruction) from the
                 # ``task`` field in the LeRobot dataset. If set to True, the prompt will show up in
