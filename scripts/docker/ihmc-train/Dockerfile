@@ -21,6 +21,9 @@ RUN apt-get --quiet 2 --yes update  \
     software-properties-common \
     sudo \
     iproute2 \
+    libgl1 \
+    libglib2.0-0 \
+    ffmpeg \
     > /dev/null \
  && rm -rf /var/lib/apt/lists/*
 
@@ -39,6 +42,8 @@ COPY --chown=robotlab:robotlab . openpi
 WORKDIR ${HOME}/openpi
 
 ENV UV_LINK_MODE=copy
+ENV UV_PROJECT_ENVIRONMENT=${HOME}/openpi/.venvDocker
 
-# Not sure if needed, the .cache/uv was showing up as root, causing problems
+# Must make sure all volumes exist or they'll get created as root
 RUN mkdir -p ${HOME}/.cache/uv
+RUN mkdir -p ${HOME}/datasets

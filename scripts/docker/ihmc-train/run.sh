@@ -6,7 +6,8 @@ set -o xtrace
 
 cd ../../..
 
-mkdir -p $HOME/.cache/uv
+# Must make sure all volumes exist or they'll get created as root
+mkdir -p $HOME/.cache/uvDocker
 
 docker build --tag ihmcrobotics/openpi-ihmc-train:0.1 \
              --build-arg HOST_UID=$(id -u) \
@@ -23,7 +24,8 @@ docker run \
     --privileged \
     --gpus all \
     --shm-size=20g \
-    --volume $HOME/.cache/uv:/home/robotlab/.cache/uv \
     --volume $(pwd):/home/robotlab/openpi \
+    --volume $HOME/.cache/uvDocker:/home/robotlab/.cache/uv \
     --volume $HOME/datasets:/home/robotlab/datasets \
     ihmcrobotics/openpi-ihmc-train:0.1 bash
+#    --volume /opt/ihmc/LogData/H1/20250911_165145_H1TouchDoorHandle150/:/home/robotlab/datasets \
