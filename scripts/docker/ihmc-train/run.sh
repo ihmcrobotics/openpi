@@ -27,5 +27,6 @@ docker run \
     --volume $(pwd):/home/robotlab/openpi \
     --volume $HOME/.cache/uvDocker:/home/robotlab/.cache/uv \
     --volume $HOME/datasets:/home/robotlab/datasets \
+    --name "${USER}_openpi_gpu123" \
     ihmcrobotics/openpi-ihmc-train:0.1 bash
 #    --volume /opt/ihmc/LogData/H1/20250911_165145_H1TouchDoorHandle150/:/home/robotlab/datasets \

@@ -41,12 +41,12 @@ class IHMCInputs(transforms.DataTransformFn):
 
     def __call__(self, data: dict) -> dict:
 
-        zed_left_image = _parse_image(data["observation/images/cam_zed_left"])
-        zed_right_image = _parse_image(data["observation/images/cam_zed_right"])
+        zed_left_image = _parse_image(data["cam_zed_left"])
+        zed_right_image = _parse_image(data["cam_zed_right"])
 
         # Create inputs dict. Do not change the keys in the dict below.
         inputs = {
-            "state": data["observation/state"],
+            "state": data["state"],
             "image": {
                 "base_0_rgb": zed_left_image,
                 "left_wrist_0_rgb": zed_right_image,
@@ -59,7 +59,7 @@ class IHMCInputs(transforms.DataTransformFn):
                 # We only mask padding images for pi0 model, not pi0-FAST. Do not change this for your own dataset.
                 "right_wrist_0_rgb": np.True_ if self.model_type == _model.ModelType.PI0_FAST else np.False_,
             },
-            "actions": data["action"],
+            "actions": data["actions"],
             "prompt": data["prompt"]
         }
 

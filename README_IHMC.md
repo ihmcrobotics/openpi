@@ -38,10 +38,41 @@ dataset $ rsync -avz --exclude='.git' "$PWD" gpu2:~/datasets/
 
 Copy your locally cloned lerobot repo to the gpu server:
 ```
-openpi $ rsync -avz --exclude={'.git','.idea','.vscode','.venv','third_party','__pycache__/'} "$PWD" gpu2:~
+openpi $ rsync -avz --exclude={'.git','.idea','.vscode','.venv','.venvDocker','third_party','__pycache__/'} "$PWD" gpu2:~
+```
+
+Use tmux in order to train overnight without needing to leave a terminal open.
+
+```
+$ tmux ls               // list sessions to attach to
+$ tmux new -s openpi   // create a new session
+```
+To detach, press Ctrl+B, then D.
+
+Enter the docker environment:
+```
+~/openpi/scripts/docker/ihmc-train $ ./run.sh
+```
+
+Setup environment:
+```
+~/openpi (docker) $ ./setupTrain.sh
 ```
 
 Compute stats:
 ```
-openpi $ uv run scripts/compute_norm_stats.py --config-name pi05_ihmc
+openpi $ DATASET="/datasets/touch_handle_8/" uv run scripts/compute_norm_stats.py --config-name pi05_ihmc
 ```
+
+Train policy:
+```
+DATASET="/datasets/touch_handle_8/" CUDA_VISIBLE_DEVICES=1,2,3 XLA_PYTHON_CLIENT_MEM_FRACTION=0.9 uv run scripts/train.py pi05_ihmc --exp-name=my_experiment
+```
+
+Use `--resume` to continue a previous run.
+
+Use `Ctrl=B` then `[` to scroll up and down the log. Hit `q` to escape that mode.
+
+To detach, press `Ctrl+B`, then `D`.
+to reattach, use `tmux a -t openpi`.
+

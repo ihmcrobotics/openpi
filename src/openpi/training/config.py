@@ -289,10 +289,10 @@ class LeRobotIHMCDataConfig(DataConfigFactory):
             inputs=[
                 _transforms.RepackTransform(
                     {
-                        "observation/images/cam_zed_left": "observation/images/cam_zed_left",
-                        "observation/images/cam_zed_right": "observation/images/cam_zed_right",
-                        "observation/state": "observation/state",
-                        "action": "action",
+                        "cam_zed_left": "observation.images.cam_zed_left",
+                        "cam_zed_right": "observation.images.cam_zed_right",
+                        "state": "observation.state",
+                        "actions": "action",
                         "prompt": "prompt",
                     }
                 )
@@ -681,7 +681,7 @@ _CONFIGS = [
         name="pi05_ihmc",
         model=pi0_config.Pi0Config(pi05=True),
         data=LeRobotIHMCDataConfig(
-            repo_id=os.path.join(os.path.expanduser("~"), "/datasets/touch_handle_1/".lstrip("/")),
+            repo_id=os.path.join(os.path.expanduser("~"), os.getenv("DATASET").lstrip("/")),
             base_config=DataConfig(
                 # This flag determines whether we load the prompt (i.e. the task instruction) from the
                 # ``task`` field in the LeRobot dataset. If set to True, the prompt will show up in
@@ -690,6 +690,7 @@ _CONFIGS = [
             ),
         ),
         num_train_steps=30_000,
+        batch_size=30,
     ),
     #
     # Fine-tuning Libero configs.
