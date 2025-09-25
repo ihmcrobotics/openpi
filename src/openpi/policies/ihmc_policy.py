@@ -41,8 +41,11 @@ class IHMCInputs(transforms.DataTransformFn):
 
     def __call__(self, data: dict) -> dict:
 
-        zed_left_image = _parse_image(data["cam_zed_left"])
-        zed_right_image = _parse_image(data["cam_zed_right"])
+        # TODO: Does this work for training?
+        zed_left_image = _parse_image(np.frombuffer(data["cam_zed_left"]["data"], dtype=np.uint8).reshape(data["cam_zed_left"]["shape"]))
+        zed_right_image = _parse_image(np.frombuffer(data["cam_zed_right"]["data"], dtype=np.uint8).reshape(data["cam_zed_right"]["shape"]))
+        # zed_left_image = _parse_image(data["cam_zed_left"])
+        # zed_right_image = _parse_image(data["cam_zed_right"])
 
         # Create inputs dict. Do not change the keys in the dict below.
         inputs = {
@@ -59,9 +62,11 @@ class IHMCInputs(transforms.DataTransformFn):
                 # We only mask padding images for pi0 model, not pi0-FAST. Do not change this for your own dataset.
                 "right_wrist_0_rgb": np.True_ if self.model_type == _model.ModelType.PI0_FAST else np.False_,
             },
-            "actions": data["actions"],
             "prompt": data["prompt"]
         }
+
+        if "actions" in data: # Actions are only present during training.
+            inputs["actions"] = data["actions"]
 
         return inputs
 
