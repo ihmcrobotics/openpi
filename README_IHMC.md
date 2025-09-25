@@ -61,12 +61,12 @@ Setup environment:
 
 Compute stats:
 ```
-openpi $ DATASET="/datasets/touch_handle_8/" uv run scripts/compute_norm_stats.py --config-name pi05_ihmc
+openpi $ DATASET="~/datasets/touch_handle_8/" uv run scripts/compute_norm_stats.py --config-name pi05_ihmc
 ```
 
 Train policy:
 ```
-DATASET="/datasets/touch_handle_8/" CUDA_VISIBLE_DEVICES=1,2,3 XLA_PYTHON_CLIENT_MEM_FRACTION=0.9 uv run scripts/train.py pi05_ihmc --exp-name=my_experiment
+DATASET="~/datasets/touch_handle_8/" CUDA_VISIBLE_DEVICES=1,2,3 XLA_PYTHON_CLIENT_MEM_FRACTION=0.9 uv run scripts/train.py pi05_ihmc --exp-name=my_experiment
 ```
 
 Use `--resume` to continue a previous run.
@@ -76,3 +76,14 @@ Use `Ctrl=B` then `[` to scroll up and down the log. Hit `q` to escape that mode
 To detach, press `Ctrl+B`, then `D`.
 to reattach, use `tmux a -t openpi`.
 
+After training has finished, on your computer, copy the stats and the trained model back into your dataset folder:
+```
+dataset $ scp -r gpu2:~/datasets/$(basename "$PWD")/norm_stats.json .
+dataset $ scp -r gpu2:~/openpi/checkpoints/pi05_ihmc/$(basename "$PWD")/29999 .
+```
+
+## Inference
+
+```
+openpi $ export DATASET="/opt/ihmc/LogData/H1/20250911_165145_H1TouchDoorHandle150/touch_handle_8"; uv run scripts/serve_policy.py policy:checkpoint --policy.config=pi05_ihmc --policy.dir="${DATASET}/29999"
+```
