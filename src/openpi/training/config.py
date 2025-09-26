@@ -681,7 +681,7 @@ _CONFIGS = [
         name="pi05_ihmc",
         model=pi0_config.Pi0Config(pi05=True),
         data=LeRobotIHMCDataConfig(
-            repo_id=os.path.join(os.path.expanduser("~"), os.getenv("DATASET").lstrip("/")),
+            repo_id=os.getenv("DATASET"),
             base_config=DataConfig(
                 # This flag determines whether we load the prompt (i.e. the task instruction) from the
                 # ``task`` field in the LeRobot dataset. If set to True, the prompt will show up in

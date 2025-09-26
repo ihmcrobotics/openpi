@@ -38,7 +38,7 @@ dataset $ rsync -avz --exclude='.git' "$PWD" gpu2:~/datasets/
 
 Copy your locally cloned lerobot repo to the gpu server:
 ```
-openpi $ rsync -avz --exclude={'.git','.idea','.vscode','.venv','.venvDocker','third_party','__pycache__/'} "$PWD" gpu2:~
+openpi $ rsync -avz --exclude={'.git','.idea','.vscode','.venv','.venvDocker','third_party','__pycache__/','wandb'} "$PWD" gpu2:~
 ```
 
 Use tmux in order to train overnight without needing to leave a terminal open.
@@ -49,24 +49,26 @@ $ tmux new -s openpi   // create a new session
 ```
 To detach, press Ctrl+B, then D.
 
-Enter the docker environment:
+Enter the docker environment. Omit the `-b` to skip rebuilding the image.
 ```
-~/openpi/scripts/docker/ihmc-train $ ./run.sh
+~/openpi/scripts/docker/ihmc $ ./run.sh -b
 ```
 
-Setup environment:
+Export your dataset path as an environment variable, select the GPUs to use, and enables using more GPU memory:
 ```
-~/openpi (docker) $ ./setupTrain.sh
+$ export DATASET=~/datasets/touch_handle_8
+$ export CUDA_VISIBLE_DEVICES=1,2,3
+$ export XLA_PYTHON_CLIENT_MEM_FRACTION=0.9
 ```
 
 Compute stats:
 ```
-openpi $ DATASET="~/datasets/touch_handle_8/" uv run scripts/compute_norm_stats.py --config-name pi05_ihmc
+openpi $ uv run scripts/compute_norm_stats.py --config-name pi05_ihmc
 ```
 
 Train policy:
 ```
-DATASET="~/datasets/touch_handle_8/" CUDA_VISIBLE_DEVICES=1,2,3 XLA_PYTHON_CLIENT_MEM_FRACTION=0.9 uv run scripts/train.py pi05_ihmc --exp-name=my_experiment
+openpi $ uv run scripts/train.py pi05_ihmc --exp-name=touch_handle_8_2
 ```
 
 Use `--resume` to continue a previous run.

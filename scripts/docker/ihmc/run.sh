@@ -9,10 +9,12 @@ cd ../../..
 # Must make sure all volumes exist or they'll get created as root
 mkdir -p $HOME/.cache/uvDocker
 
-docker build --tag ihmcrobotics/openpi-ihmc-train:0.1 \
-             --build-arg HOST_UID=$(id -u) \
-             --build-arg HOST_GID=$(id -g) \
-             --file scripts/docker/ihmc-train/Dockerfile .
+if [ "$1" = "-b" ]; then
+  docker build --tag ihmcrobotics/openpi-ihmc-train:0.3 \
+               --build-arg HOST_UID=$(id -u) \
+               --build-arg HOST_GID=$(id -g) \
+               --file scripts/docker/ihmc/Dockerfile .
+fi
 
 docker run \
     --tty \
@@ -28,5 +30,4 @@ docker run \
     --volume $HOME/.cache/uvDocker:/home/robotlab/.cache/uv \
     --volume $HOME/datasets:/home/robotlab/datasets \
     --name "${USER}_openpi_gpu123" \
-    ihmcrobotics/openpi-ihmc-train:0.1 bash
-#    --volume /opt/ihmc/LogData/H1/20250911_165145_H1TouchDoorHandle150/:/home/robotlab/datasets \
+    ihmcrobotics/openpi-ihmc-train:0.3 bash
