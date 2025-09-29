@@ -30,8 +30,9 @@ RUN apt-get --quiet 2 --yes update  \
 ARG HOST_UID
 ARG HOST_GID
 
+# useradd --no-log-init fixes bug with large user ids when exporting layers
 RUN addgroup --gid "${HOST_GID}" robotlab  \
- && adduser --uid "${HOST_UID}" --ingroup robotlab --shell /bin/bash robotlab \
+ && adduser --uid "${HOST_UID}" --no-log-init --ingroup robotlab --shell /bin/bash robotlab \
  && usermod --append --groups root robotlab
 
 USER robotlab
