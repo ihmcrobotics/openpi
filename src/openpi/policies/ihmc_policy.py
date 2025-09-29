@@ -51,7 +51,7 @@ class IHMCInputs(transforms.DataTransformFn):
             left_data = np.frombuffer(left_data["data"], dtype=np.uint8).reshape(left_data["shape"])
             right_data = np.frombuffer(right_data["data"], dtype=np.uint8).reshape(right_data["shape"])
         if not hasattr(state_data, "shape"): # TODO Might not need to convert to torch here (i.e. torch.from_numpy)
-            state_data = torch.from_numpy(np.frombuffer(state_data["data"], dtype=np.float32).reshape(state_data["shape"]))
+            state_data = torch.from_numpy(np.frombuffer(state_data["data"], dtype=np.float32).reshape(state_data["shape"]).copy())
 
         zed_left_image = _parse_image(left_data)
         zed_right_image = _parse_image(right_data)
