@@ -87,5 +87,5 @@ dataset $ scp -r gpu2:~/openpi/checkpoints/pi05_ihmc/$(basename "$PWD")/29999 .
 ## Inference
 
 ```
-openpi $ uv run scripts/serve_policy.py policy:checkpoint --policy.config=pi05_ihmc --policy.dir="${DATASET}/29999"
+openpi $ uv run scripts/serve_policy.py --host "0.0.0.0" policy:checkpoint --policy.config=pi05_ihmc --policy.dir="${DATASET}/29999"
 ```
