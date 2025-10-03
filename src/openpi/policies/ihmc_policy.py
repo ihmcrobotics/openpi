@@ -1,5 +1,6 @@
 import dataclasses
-
+import time
+import cv2
 import einops
 import numpy as np
 
@@ -46,14 +47,19 @@ class IHMCInputs(transforms.DataTransformFn):
         state_data = data["state"]
 
         # Handle input from websocket client which doesn't come in as a valid torch tensor
-        if not hasattr(left_data, "shape"):
-            left_data = np.frombuffer(left_data["data"], dtype=np.uint8).reshape(left_data["shape"])
-            right_data = np.frombuffer(right_data["data"], dtype=np.uint8).reshape(right_data["shape"])
         if not hasattr(state_data, "shape"): # TODO Might not need to convert to torch here (i.e. torch.from_numpy)
             state_data = np.frombuffer(state_data["data"], dtype=np.float32).reshape(state_data["shape"]).copy()
+        if not hasattr(left_data, "shape"):
+            zed_left_image = np.frombuffer(left_data["data"], dtype=np.uint8).reshape((224, 224, 3))
+            zed_right_image = np.frombuffer(right_data["data"], dtype=np.uint8).reshape((224, 224, 3))
+        else:
+            zed_left_image = _parse_image(left_data)
+            zed_right_image = _parse_image(right_data)
 
-        zed_left_image = _parse_image(left_data)
-        zed_right_image = _parse_image(right_data)
+        # timestamp = int(time.time())
+        # combined = np.hstack((zed_left_image, zed_right_image))
+        # bgr_image = combined[..., ::-1]
+        # cv2.imwrite(f'{timestamp}_combined_zed_views.png', bgr_image)
 
         # Create inputs dict. Do not change the keys in the dict below.
         inputs = {
