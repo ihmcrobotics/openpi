@@ -49,12 +49,19 @@ class IHMCInputs(transforms.DataTransformFn):
         # Handle input from websocket client which doesn't come in as a valid torch tensor
         if not hasattr(state_data, "shape"): # TODO Might not need to convert to torch here (i.e. torch.from_numpy)
             state_data = np.frombuffer(state_data["data"], dtype=np.float32).reshape(state_data["shape"]).copy()
+            
         if not hasattr(left_data, "shape"):
             zed_left_image = np.frombuffer(left_data["data"], dtype=np.uint8).reshape((224, 224, 3))
             zed_right_image = np.frombuffer(right_data["data"], dtype=np.uint8).reshape((224, 224, 3))
         else:
             zed_left_image = _parse_image(left_data)
             zed_right_image = _parse_image(right_data)
+
+        # Print the 4 poses from state data
+        for i in range(4):
+            pos = state_data[i * 7:i * 7 + 3]
+            quat = state_data[i * 7 + 3:i * 7 + 7]
+            print(f"Pose {i + 1}: Position (x,y,z): {pos}, Quaternion (w,x,y,z): {quat}")
 
         # timestamp = int(time.time())
         # combined = np.hstack((zed_left_image, zed_right_image))
