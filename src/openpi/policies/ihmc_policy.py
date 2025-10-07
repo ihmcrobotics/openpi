@@ -11,7 +11,7 @@ from openpi.models import model as _model
 def make_ihmc_example() -> dict:
     """Creates a random input example for the IHMC policy."""
     return {
-        "observation/state": np.random.rand(28),
+        "observation/state": np.random.rand(3),
         "observation/images": {
             "cam_zed_left": np.random.randint(256, size=(3, 224, 224), dtype=np.uint8),
             "cam_zed_right": np.random.randint(256, size=(3, 224, 224), dtype=np.uint8),
@@ -58,10 +58,10 @@ class IHMCInputs(transforms.DataTransformFn):
             zed_right_image = _parse_image(right_data)
 
         # Print the 4 poses from state data
-        for i in range(4):
-            pos = state_data[i * 7:i * 7 + 3]
-            quat = state_data[i * 7 + 3:i * 7 + 7]
-            print(f"Pose {i + 1}: Position (x,y,z): {pos}, Quaternion (w,x,y,z): {quat}")
+        # for i in range(4):
+        #     pos = state_data[i * 7:i * 7 + 3]
+        #     quat = state_data[i * 7 + 3:i * 7 + 7]
+        #     print(f"Pose {i + 1}: Position (x,y,z): {pos}, Quaternion (w,x,y,z): {quat}")
 
         # timestamp = int(time.time())
         # combined = np.hstack((zed_left_image, zed_right_image))
@@ -98,4 +98,4 @@ class IHMCOutputs(transforms.DataTransformFn):
 
     def __call__(self, data: dict) -> dict:
         # Only return the first 28 dims.
-        return {"actions": np.asarray(data["actions"][:, :28])}
+        return {"actions": np.asarray(data["actions"][:, :3])}

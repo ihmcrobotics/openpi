@@ -305,8 +305,7 @@ class LeRobotIHMCDataConfig(DataConfigFactory):
         )
 
         # Convert actions to delta actions. TODO Figure out orientations, should be Rot6D
-        # TODO, is the 14 right? What does the -1 do?
-        delta_action_mask = _transforms.make_bool_mask(14, -1)
+        delta_action_mask = _transforms.make_bool_mask(3)
         data_transforms = data_transforms.push(
             inputs=[_transforms.DeltaActions(delta_action_mask)],
             outputs=[_transforms.AbsoluteActions(delta_action_mask)],
@@ -689,8 +688,7 @@ _CONFIGS = [
                 prompt_from_task=True,
             ),
         ),
-        num_train_steps=30_000,
-        batch_size=30,
+        batch_size=30, # Needs to divide evenly by # gpus, using 3
     ),
     #
     # Fine-tuning Libero configs.
