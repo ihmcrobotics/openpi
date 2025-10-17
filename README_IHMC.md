@@ -56,7 +56,7 @@ Enter the docker environment. Omit the `-b` to skip rebuilding the image.
 
 Export your dataset path as an environment variable, select the GPUs to use, and enables using more GPU memory:
 ```
-$ export DATASET=~/datasets/touch_handle_8
+$ export DATASET=~/datasets/tennis_circles
 $ export CUDA_VISIBLE_DEVICES=1,2,3
 $ export XLA_PYTHON_CLIENT_MEM_FRACTION=0.9
 ```
@@ -66,9 +66,14 @@ Compute stats:
 openpi $ uv run scripts/compute_norm_stats.py --config-name pi05_ihmc
 ```
 
+Verify 250 GB of disk space is available using `df -h`. Check how much space is being used by your checkpoints:
+```
+~/openpi $ du -h --max-depth=3 | sort -hr
+```
+
 Train policy:
 ```
-openpi $ uv run scripts/train.py pi05_ihmc --exp-name=touch_handle_8_2
+openpi $ uv run scripts/train.py pi05_ihmc --exp-name=tennis_circles
 ```
 
 Use `--resume` to continue a previous run.
