@@ -1,0 +1,101 @@
+import dataclasses
+import time
+import cv2
+import einops
+import numpy as np
+
+from openpi import transforms
+from openpi.models import model as _model
+
+
+def make_ihmc_example() -> dict:
+    """Creates a random input example for the IHMC policy."""
+    return {
+        "observation/state": np.random.rand(3),
+        "observation/images": {
+            "cam_zed_left": np.random.randint(256, size=(3, 224, 224), dtype=np.uint8),
+            "cam_zed_right": np.random.randint(256, size=(3, 224, 224), dtype=np.uint8),
+        },
+        "prompt": "0 Touch handle.",
+    }
+
+
+def _parse_image(image) -> np.ndarray:
+    image = np.asarray(image)
+    if np.issubdtype(image.dtype, np.floating):
+        image = (255 * image).astype(np.uint8)
+    if image.shape[0] == 3:
+        image = einops.rearrange(image, "c h w -> h w c")
+    return image
+
+@dataclasses.dataclass(frozen=True)
+class IHMCInputs(transforms.DataTransformFn):
+    """Inputs for the IHMC policy.
+
+    Expected inputs:
+    - images: dict[name, img] where img is [channel, height, width]. name must be in EXPECTED_CAMERAS.
+    - state: [28]
+    - actions: [action_horizon, 28]
+    """
+
+    model_type: _model.ModelType
+
+    def __call__(self, data: dict) -> dict:
+
+        left_data = data["cam_zed_left"]
+        right_data = data["cam_zed_right"]
+        state_data = data["state"]
+
+        # Handle input from websocket client which doesn't come in as a valid torch tensor
+        if not hasattr(state_data, "shape"): # TODO Might not need to convert to torch here (i.e. torch.from_numpy)
+            state_data = np.frombuffer(state_data["data"], dtype=np.float32).reshape(state_data["shape"]).copy()
+            
+        if not hasattr(left_data, "shape"):
+            zed_left_image = np.frombuffer(left_data["data"], dtype=np.uint8).reshape((224, 224, 3))
+            zed_right_image = np.frombuffer(right_data["data"], dtype=np.uint8).reshape((224, 224, 3))
+        else:
+            zed_left_image = _parse_image(left_data)
+            zed_right_image = _parse_image(right_data)
+
+        # Print the 4 poses from state data
+        # for i in range(4):
+        #     pos = state_data[i * 7:i * 7 + 3]
+        #     quat = state_data[i * 7 + 3:i * 7 + 7]
+        #     print(f"Pose {i + 1}: Position (x,y,z): {pos}, Quaternion (w,x,y,z): {quat}")
+
+        # timestamp = int(time.time())
+        # combined = np.hstack((zed_left_image, zed_right_image))
+        # bgr_image = combined[..., ::-1]
+        # cv2.imwrite(f'{timestamp}_combined_zed_views.png', bgr_image)
+
+        # Create inputs dict. Do not change the keys in the dict below.
+        inputs = {
+            "state": state_data,
+            "image": {
+                "base_0_rgb": zed_left_image,
+                "left_wrist_0_rgb": zed_right_image,
+                # Pad non-existent images with zero-array of the appropriate shape.
+                "right_wrist_0_rgb": np.zeros_like(zed_left_image),
+            },
+            "image_mask": {
+                "base_0_rgb": np.True_,
+                "left_wrist_0_rgb": np.True_,
+                # We only mask padding images for pi0 model, not pi0-FAST. Do not change this for your own dataset.
+                "right_wrist_0_rgb": np.True_ if self.model_type == _model.ModelType.PI0_FAST else np.False_,
+            },
+            "prompt": data["prompt"]
+        }
+
+        if "actions" in data: # Actions are only present during training.
+            inputs["actions"] = data["actions"]
+
+        return inputs
+
+
+@dataclasses.dataclass(frozen=True)
+class IHMCOutputs(transforms.DataTransformFn):
+    """Outputs for the IHMC policy."""
+
+    def __call__(self, data: dict) -> dict:
+        # Only return the first 28 dims.
+        return {"actions": np.asarray(data["actions"][:, :3])}

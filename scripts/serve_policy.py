@@ -46,6 +46,8 @@ class Args:
     # prompt.
     default_prompt: str | None = None
 
+    # Host to serve the policy on.
+    host: str = "0.0.0.0"
     # Port to serve the policy on.
     port: int = 8000
     # Record the policy's behavior for debugging.
@@ -110,7 +112,7 @@ def main(args: Args) -> None:
 
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
-        host="0.0.0.0",
+        host=args.host,
         port=args.port,
         metadata=policy_metadata,
     )
